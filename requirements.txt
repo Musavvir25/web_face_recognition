@@ -125,7 +125,7 @@ typing_extensions==4.12.2
 tzdata==2025.1
 ujson==5.10.0
 uvicorn==0.34.0
-
+vboxapi==1.0
 watchfiles==1.0.4
 wcwidth==0.2.13
 websockets==14.2
