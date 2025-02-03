@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="citation_title" content="Your Web App Title">
+    <meta name="citation_author" content="Your Name">
+     <meta name="citation_publication_date" content="2025-02-04">
+
+  <meta charset="UTF-8">
+  <title>Face Recognition Attendance</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; }
+    video { border: 1px solid #ccc; }
+    #results { margin-top: 20px; text-align: left; display: inline-block; }
+    .face-box { border: 1px solid #4CAF50; padding: 10px; margin: 5px 0; }
+  </style>
+</head>
+<body>
+  <h1>Face Recognition Attendance System</h1>
+  <video id="video" width="640" height="480" autoplay></video>
+  <br>
+  <button id="captureBtn">Capture & Send Frame</button>
+  <canvas id="canvas" width="640" height="480" style="display:none;"></canvas>
+  <div id="results"><h2>Detection Results:</h2><div id="facesContainer"></div></div>
+
+  <script>
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const facesContainer = document.getElementById('facesContainer');
+
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(stream => { video.srcObject = stream; })
+      .catch(error => { alert("Webcam access denied."); });
+
+    function captureFrame() {
+      const context = canvas.getContext('2d');
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+      return canvas.toDataURL('image/jpeg');
+    }
+
+    function sendFrame() {
+      fetch('/process_frame', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image: captureFrame() })
+      })
+      .then(response => response.json())
+      .then(data => { displayResults(data); })
+      .catch(error => { console.error("Error:", error); });
+    }
+
+    function displayResults(data) {
+      facesContainer.innerHTML = '';
+      if (data.error) { facesContainer.innerHTML = `<p style="color: red;">Error: ${data.error}</p>`; return; }
+      facesContainer.innerHTML += `<p>Faces detected: ${data.face_count}</p>`;
+      data.faces.forEach((face, index) => {
+        facesContainer.innerHTML += `<div class="face-box">
+          <strong>Face ${index + 1}:</strong><br>
+          ID: ${face.recognized_id || 'N/A'}<br>
+          Name: ${face.recognized_name}<br>
+          Confidence: ${face.confidence.toFixed(2)}
+        </div>`;
+      });
+    }
+
+    document.getElementById('captureBtn').addEventListener('click', sendFrame);
+    setInterval(sendFrame, 3000);
+  </script>
+</body>
+</html>
