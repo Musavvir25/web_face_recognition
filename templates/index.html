@@ -1,17 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta name="citation_title" content="Your Web App Title">
-    <meta name="citation_author" content="Your Name">
-     <meta name="citation_publication_date" content="2025-02-04">
-
   <meta charset="UTF-8">
+  <meta name="v
+  ewport" content="width=device-width, initial-scale=1.0">
   <title>Face Recognition Attendance</title>
   <style>
-    body { font-family: Arial, sans-serif; text-align: center; }
-    video { border: 1px solid #ccc; }
+    body { font-family: Arial, sans-serif; text-align: center; margin: 20px; }
+    video { border: 1px solid #ccc; display: block; margin: auto; }
     #results { margin-top: 20px; text-align: left; display: inline-block; }
-    .face-box { border: 1px solid #4CAF50; padding: 10px; margin: 5px 0; }
+    .face-box { border: 2px solid #4CAF50; padding: 10px; margin: 5px 0; }
+    button { margin: 10px; padding: 10px 20px; font-size: 16px; }
   </style>
 </head>
 <body>
@@ -26,19 +25,23 @@
     const video = document.getElementById('video');
     const canvas = document.getElementById('canvas');
     const facesContainer = document.getElementById('facesContainer');
+    const API_URL = "https://face-recognition-app-7xbj.onrender.com/process_frame";  // Your backend URL
 
+    // Get webcam access
     navigator.mediaDevices.getUserMedia({ video: true })
       .then(stream => { video.srcObject = stream; })
       .catch(error => { alert("Webcam access denied."); });
 
+    // Capture frame from video
     function captureFrame() {
       const context = canvas.getContext('2d');
       context.drawImage(video, 0, 0, canvas.width, canvas.height);
-      return canvas.toDataURL('image/jpeg');
+      return canvas.toDataURL('image/jpeg');  // Convert to base64
     }
 
+    // Send frame to Flask API
     function sendFrame() {
-      fetch('/process_frame', {
+      fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ image: captureFrame() })
@@ -48,6 +51,7 @@
       .catch(error => { console.error("Error:", error); });
     }
 
+    // Display recognition results
     function displayResults(data) {
       facesContainer.innerHTML = '';
       if (data.error) { facesContainer.innerHTML = `<p style="color: red;">Error: ${data.error}</p>`; return; }
@@ -62,7 +66,10 @@
       });
     }
 
+    // Event listener for button
     document.getElementById('captureBtn').addEventListener('click', sendFrame);
+
+    // Auto-send frame every 3 seconds
     setInterval(sendFrame, 3000);
   </script>
 </body>
