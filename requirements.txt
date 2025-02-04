@@ -26,7 +26,7 @@ wheel
 
 deprecation==2.1.0
 dlib @ file:///D:/RTendace/web_face_recognition/dlib-19.22.99-cp310-cp310-win_amd64.whl#sha256=f2181b6724669fb0147c9ebc326d72b94de41bced1812eff5df4b133b5d0b575
-dlib-bin==19.24.6
+
 dnspython==2.7.0
 ecdsa==0.19.0
 email_validator==2.2.0
